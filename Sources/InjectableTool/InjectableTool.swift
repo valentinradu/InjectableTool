@@ -31,6 +31,9 @@ enum InjectableTool {
         if let extensions = try extensionsBuilder.build() {
             FileManager.default.createFile(atPath: CommandLine.arguments[2],
                                            contents: extensions.data(using: .utf8))
+        } else {
+            FileManager.default.createFile(atPath: CommandLine.arguments[2],
+                                           contents: nil)
         }
     }
 }

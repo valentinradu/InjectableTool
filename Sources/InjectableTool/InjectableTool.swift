@@ -17,8 +17,16 @@ enum InjectableToolError: Error {
 @main
 enum InjectableTool {
     public static func main() throws {
+        let path = String(CommandLine.arguments[1])
+        
+        guard path.hasSuffix("swift") else {
+            FileManager.default.createFile(atPath: CommandLine.arguments[2],
+                                           contents: nil)
+            return
+        }
+        
         guard let sourceData = FileManager.default
-            .contents(atPath: CommandLine.arguments[1]),
+            .contents(atPath: path),
             let source = String(data: sourceData, encoding: .utf8)
         else {
             throw InjectableToolError.failedToReadInputFile

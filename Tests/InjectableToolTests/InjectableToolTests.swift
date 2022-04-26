@@ -91,7 +91,7 @@ final class InjectableToolTests: XCTestCase {
                 DependencyDefinition(name: "CustomStruct2", identifier: .asyncFailableDependency, isPublic: true),
                 DependencyDefinition(name: "CustomStruct3", identifier: .failableDependency, isPublic: true),
             ],
-            imports: ["Injectable"])
+            imports: ["Injectable", "AudioUnit"])
         )
 
         let result = try builder.build()
@@ -99,6 +99,7 @@ final class InjectableToolTests: XCTestCase {
         let expectedResult = """
 
         import Injectable
+        import AudioUnit
         private struct CustomStruct1DependencyProviderKey: DependencyKey {
             static var defaultValue = _DependencyProvider<CustomStruct1>()
         }

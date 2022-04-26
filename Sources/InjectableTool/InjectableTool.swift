@@ -213,11 +213,11 @@ class ExtensionBuilder {
         }
 
         let source = SourceFile(eofToken: .eof) {
-            ImportDecl(pathBuilder: {
-                for forwardImport in _data.imports {
+            for forwardImport in _data.imports {
+                ImportDecl(pathBuilder: {
                     AccessPathComponent(name: forwardImport)
-                }
-            })
+                })
+            }
             for def in _data.definitions {
                 RawSyntax(source: """
                 private struct \(def.name)\(def.identifier.rawValue)ProviderKey: DependencyKey {

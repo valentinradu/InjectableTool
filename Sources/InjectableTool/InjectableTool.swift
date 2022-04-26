@@ -18,13 +18,13 @@ enum InjectableToolError: Error {
 enum InjectableTool {
     public static func main() throws {
         let path = String(CommandLine.arguments[1])
-        
+
         guard path.hasSuffix("swift") else {
             FileManager.default.createFile(atPath: CommandLine.arguments[2],
                                            contents: nil)
             return
         }
-        
+
         guard let sourceData = FileManager.default
             .contents(atPath: path),
             let source = String(data: sourceData, encoding: .utf8)
@@ -35,7 +35,7 @@ enum InjectableTool {
         let definitionsFinder = DefinitionsLookup()
         try definitionsFinder.parse(source: source)
 
-        let extensionsBuilder = ExtensionBuilder(definitionsFinder.definitions)
+        let extensionsBuilder = ExtensionBuilder(definitionsFinder.data)
         if let extensions = try extensionsBuilder.build() {
             FileManager.default.createFile(atPath: CommandLine.arguments[2],
                                            contents: extensions.data(using: .utf8))
@@ -80,18 +80,26 @@ struct DependencyDefinition: Equatable {
     let isPublic: Bool
 }
 
+struct DependencyData {
+    var definitions: [DependencyDefinition] = []
+    var imports: [String] = []
+}
+
 class DefinitionsLookup: SyntaxVisitor {
     private var _isScanning: Bool = false
     private var _isPublic: Bool = false
     private var _lastName: String?
-    private(set) var definitions: [DependencyDefinition] = []
+    private(set) var data: DependencyData = .init()
 
     override func visit(_ token: TokenSyntax) -> SyntaxVisitorContinueKind {
         switch token.tokenKind {
         case .structKeyword, .classKeyword,
              .enumKeyword, .contextualKeyword("actor"),
-             .extensionKeyword, .protocolKeyword:
+             .extensionKeyword:
             _isScanning = true
+        case .importKeyword:
+            let identifiers = nextFullyQualifiedIdentifier(initialToken: token)
+            data.imports.append(identifiers.joined(separator: "."))
         case .publicKeyword:
             if _isScanning {
                 _isPublic = true
@@ -102,38 +110,18 @@ class DefinitionsLookup: SyntaxVisitor {
             }
 
             if _lastName == nil {
-                var localToken = token
-                var localValue = value
-
-                while let localNextToken = localToken.nextToken {
-                    let shouldExit: Bool
-                    switch localNextToken.tokenKind {
-                    case let .identifier(nextValue):
-                        localToken = localNextToken
-                        localValue = nextValue
-                        shouldExit = false
-                    case .period:
-                        localToken = localNextToken
-                        shouldExit = false
-                    default:
-                        shouldExit = true
-                    }
-
-                    if shouldExit {
-                        break
-                    }
-                }
-
-                _lastName = localValue
+                let identifiers = nextFullyQualifiedIdentifier(initialToken: token,
+                                                               initialValue: value)
+                _lastName = identifiers.joined(separator: "")
             }
 
             if let dependencyIdentifier = DependencyIdentifier(rawValue: value),
-               let lastName = _lastName, !definitions.map(\.name).contains(lastName)
+               let lastName = _lastName, !data.definitions.map(\.name).contains(lastName)
             {
                 let definition = DependencyDefinition(name: lastName,
                                                       identifier: dependencyIdentifier,
                                                       isPublic: _isPublic)
-                definitions.append(definition)
+                data.definitions.append(definition)
             }
         case .leftBrace:
             _isScanning = false
@@ -153,6 +141,34 @@ class DefinitionsLookup: SyntaxVisitor {
     func parse(source: String) throws {
         let sourceFile = try SyntaxParser.parse(source: source)
         walk(sourceFile)
+    }
+
+    private func nextFullyQualifiedIdentifier(initialToken token: TokenSyntax,
+                                              initialValue value: String? = nil) -> [String]
+    {
+        var localToken = token
+        var localValues = [value].compactMap { $0 }
+
+        while let localNextToken = localToken.nextToken {
+            let shouldExit: Bool
+            switch localNextToken.tokenKind {
+            case let .identifier(nextValue):
+                localToken = localNextToken
+                localValues.append(nextValue)
+                shouldExit = false
+            case .period:
+                localToken = localNextToken
+                shouldExit = false
+            default:
+                shouldExit = true
+            }
+
+            if shouldExit {
+                break
+            }
+        }
+
+        return localValues
     }
 }
 
@@ -180,27 +196,29 @@ struct RawSyntax: SyntaxBuildable, ExpressibleAsCodeBlockItem {
 
 extension String {
     func lowercasedFirstLetter() -> String {
-        return prefix(1).lowercased() + lowercased().dropFirst()
+        return prefix(1).lowercased() + dropFirst()
     }
 }
 
 class ExtensionBuilder {
-    private let _definitions: [DependencyDefinition]
+    private let _data: DependencyData
 
-    init(_ definitions: [DependencyDefinition]) {
-        _definitions = definitions
+    init(_ data: DependencyData) {
+        _data = data
     }
 
     func build() throws -> String? {
-        if _definitions.count == 0 {
+        if _data.definitions.count == 0 {
             return nil
         }
 
         let source = SourceFile(eofToken: .eof) {
             ImportDecl(pathBuilder: {
-                AccessPathComponent(name: "Injectable")
+                for forwardImport in _data.imports {
+                    AccessPathComponent(name: forwardImport)
+                }
             })
-            for def in _definitions {
+            for def in _data.definitions {
                 RawSyntax(source: """
                 private struct \(def.name)\(def.identifier.rawValue)ProviderKey: DependencyKey {
                     static var defaultValue = _\(def.identifier.rawValue)Provider<\(def.name)>()

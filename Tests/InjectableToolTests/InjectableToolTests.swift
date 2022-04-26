@@ -12,6 +12,9 @@ import XCTest
 final class InjectableToolTests: XCTestCase {
     func testBasicDefinitionFinder() async throws {
         let example = """
+            import CoreData
+            import Custom.Inner
+
             struct Empty {}
 
             struct Struct0: Dependency {}
@@ -33,17 +36,13 @@ final class InjectableToolTests: XCTestCase {
             extension Extension0: Dependency {}
             extension Extension1: AsyncFailableDependency {}
             extension Extension2: FailableDependency {}
-
-            protocol Protocol0: Dependency {}
-            protocol Protocol1: AsyncFailableDependency {}
-            protocol Protocol2: FailableDependency {}
         """
 
         let definitionsFinder = DefinitionsLookup()
         try definitionsFinder.parse(source: example)
 
         XCTAssertEqual(
-            definitionsFinder.definitions,
+            definitionsFinder.data.definitions,
             [
                 DependencyDefinition(name: "Struct0", identifier: .dependency, isPublic: false),
                 DependencyDefinition(name: "Struct1", identifier: .asyncFailableDependency, isPublic: false),
@@ -64,14 +63,15 @@ final class InjectableToolTests: XCTestCase {
                 DependencyDefinition(name: "Extension0", identifier: .dependency, isPublic: false),
                 DependencyDefinition(name: "Extension1", identifier: .asyncFailableDependency, isPublic: false),
                 DependencyDefinition(name: "Extension2", identifier: .failableDependency, isPublic: false),
-
-                DependencyDefinition(name: "Protocol0", identifier: .dependency, isPublic: false),
-                DependencyDefinition(name: "Protocol1", identifier: .asyncFailableDependency, isPublic: false),
-                DependencyDefinition(name: "Protocol2", identifier: .failableDependency, isPublic: false),
             ]
         )
+
+        XCTAssertEqual(
+            definitionsFinder.data.imports,
+            ["CoreData", "Custom.Inner"]
+        )
     }
-    
+
     func testNestedDefinitionFinder() async throws {
         let example = """
             struct Nested.Struct: Dependency {}
@@ -80,47 +80,50 @@ final class InjectableToolTests: XCTestCase {
         let definitionsFinder = DefinitionsLookup()
         try definitionsFinder.parse(source: example)
 
-        XCTAssertEqual(definitionsFinder.definitions,
-                       [DependencyDefinition(name: "Struct", identifier: .dependency, isPublic: false)])
+        XCTAssertEqual(definitionsFinder.data.definitions,
+                       [DependencyDefinition(name: "NestedStruct", identifier: .dependency, isPublic: false)])
     }
 
     func testBasicExtensionBuilder() async throws {
-        let builder = ExtensionBuilder([
-            DependencyDefinition(name: "Struct1", identifier: .dependency, isPublic: true),
-            DependencyDefinition(name: "Struct2", identifier: .asyncFailableDependency, isPublic: true),
-            DependencyDefinition(name: "Struct3", identifier: .failableDependency, isPublic: true),
-        ])
+        let builder = ExtensionBuilder(
+            DependencyData(definitions: [
+                DependencyDefinition(name: "CustomStruct1", identifier: .dependency, isPublic: true),
+                DependencyDefinition(name: "CustomStruct2", identifier: .asyncFailableDependency, isPublic: true),
+                DependencyDefinition(name: "CustomStruct3", identifier: .failableDependency, isPublic: true),
+            ],
+            imports: ["Injectable"])
+        )
 
         let result = try builder.build()
 
         let expectedResult = """
 
         import Injectable
-        private struct Struct1DependencyProviderKey: DependencyKey {
-            static var defaultValue = _DependencyProvider<Struct1>()
+        private struct CustomStruct1DependencyProviderKey: DependencyKey {
+            static var defaultValue = _DependencyProvider<CustomStruct1>()
         }
         public extension SharedContainer {
-            var struct1: ()  -> Struct1 {
-                get { {  self[Struct1DependencyProviderKey.self].getValue(container: self) } }
-                set { self[Struct1DependencyProviderKey.self].replaceProvider(newValue) }
+            var customStruct1: ()  -> CustomStruct1 {
+                get { {  self[CustomStruct1DependencyProviderKey.self].getValue(container: self) } }
+                set { self[CustomStruct1DependencyProviderKey.self].replaceProvider(newValue) }
             }
         }
-        private struct Struct2AsyncFailableDependencyProviderKey: DependencyKey {
-            static var defaultValue = _AsyncFailableDependencyProvider<Struct2>()
+        private struct CustomStruct2AsyncFailableDependencyProviderKey: DependencyKey {
+            static var defaultValue = _AsyncFailableDependencyProvider<CustomStruct2>()
         }
         public extension SharedContainer {
-            var struct2: () async throws -> Struct2 {
-                get { { try await self[Struct2AsyncFailableDependencyProviderKey.self].getValue(container: self) } }
-                set { self[Struct2AsyncFailableDependencyProviderKey.self].replaceProvider(newValue) }
+            var customStruct2: () async throws -> CustomStruct2 {
+                get { { try await self[CustomStruct2AsyncFailableDependencyProviderKey.self].getValue(container: self) } }
+                set { self[CustomStruct2AsyncFailableDependencyProviderKey.self].replaceProvider(newValue) }
             }
         }
-        private struct Struct3FailableDependencyProviderKey: DependencyKey {
-            static var defaultValue = _FailableDependencyProvider<Struct3>()
+        private struct CustomStruct3FailableDependencyProviderKey: DependencyKey {
+            static var defaultValue = _FailableDependencyProvider<CustomStruct3>()
         }
         public extension SharedContainer {
-            var struct3: () throws -> Struct3 {
-                get { { try self[Struct3FailableDependencyProviderKey.self].getValue(container: self) } }
-                set { self[Struct3FailableDependencyProviderKey.self].replaceProvider(newValue) }
+            var customStruct3: () throws -> CustomStruct3 {
+                get { { try self[CustomStruct3FailableDependencyProviderKey.self].getValue(container: self) } }
+                set { self[CustomStruct3FailableDependencyProviderKey.self].replaceProvider(newValue) }
             }
         }
         """

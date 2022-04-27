@@ -153,9 +153,14 @@ class DefinitionsLookup: SyntaxVisitor {
             let shouldExit: Bool
             switch localNextToken.tokenKind {
             case let .identifier(nextValue):
-                localToken = localNextToken
-                localValues.append(nextValue)
-                shouldExit = false
+                // fixes issue with SwiftSyntax
+                if nextValue == "final" {
+                    shouldExit = true
+                } else {
+                    localToken = localNextToken
+                    localValues.append(nextValue)
+                    shouldExit = false
+                }
             case .period:
                 localToken = localNextToken
                 shouldExit = false

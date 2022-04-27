@@ -21,9 +21,11 @@ final class InjectableToolTests: XCTestCase {
             struct Struct1: AsyncFailableDependency {}
             struct Struct2: FailableDependency {}
 
-            class Class0: Dependency {}
-            class Class1: AsyncFailableDependency {}
-            class Class2: FailableDependency {}
+            import Foundation
+        
+            final class Class0: Dependency {}
+            final class Class1: AsyncFailableDependency {}
+            final class Class2: FailableDependency {}
 
             enum Enum0: Dependency {}
             enum Enum1: AsyncFailableDependency {}
@@ -68,7 +70,7 @@ final class InjectableToolTests: XCTestCase {
 
         XCTAssertEqual(
             definitionsFinder.data.imports,
-            ["CoreData", "Custom.Inner"]
+            ["CoreData", "Custom.Inner", "Foundation"]
         )
     }
 

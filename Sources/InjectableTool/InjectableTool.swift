@@ -101,9 +101,7 @@ class DefinitionsLookup: SyntaxVisitor {
             let identifiers = nextFullyQualifiedIdentifier(initialToken: token)
             data.imports.append(identifiers.joined(separator: "."))
         case .publicKeyword:
-            if _isScanning {
-                _isPublic = true
-            }
+            _isPublic = true
         case let .identifier(value):
             guard _isScanning else {
                 break

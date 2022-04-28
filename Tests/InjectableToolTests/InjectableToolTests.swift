@@ -31,9 +31,9 @@ final class InjectableToolTests: XCTestCase {
             enum Enum1: AsyncFailableDependency {}
             enum Enum2: FailableDependency {}
 
-            actor Actor0: Dependency {}
-            actor Actor1: AsyncFailableDependency {}
-            actor Actor2: FailableDependency {}
+            public actor Actor0: Dependency {}
+            public actor Actor1: AsyncFailableDependency {}
+            public actor Actor2: FailableDependency {}
 
             extension Extension0: Dependency {}
             extension Extension1: AsyncFailableDependency {}
@@ -58,9 +58,9 @@ final class InjectableToolTests: XCTestCase {
                 DependencyDefinition(name: "Enum1", identifier: .asyncFailableDependency, isPublic: false),
                 DependencyDefinition(name: "Enum2", identifier: .failableDependency, isPublic: false),
 
-                DependencyDefinition(name: "Actor0", identifier: .dependency, isPublic: false),
-                DependencyDefinition(name: "Actor1", identifier: .asyncFailableDependency, isPublic: false),
-                DependencyDefinition(name: "Actor2", identifier: .failableDependency, isPublic: false),
+                DependencyDefinition(name: "Actor0", identifier: .dependency, isPublic: true),
+                DependencyDefinition(name: "Actor1", identifier: .asyncFailableDependency, isPublic: true),
+                DependencyDefinition(name: "Actor2", identifier: .failableDependency, isPublic: true),
 
                 DependencyDefinition(name: "Extension0", identifier: .dependency, isPublic: false),
                 DependencyDefinition(name: "Extension1", identifier: .asyncFailableDependency, isPublic: false),

@@ -77,7 +77,6 @@ enum DependencyIdentifier: String {
 struct DependencyDefinition: Equatable {
     let name: String
     let identifier: DependencyIdentifier
-    let isPublic: Bool
 }
 
 struct DependencyData {
@@ -87,7 +86,6 @@ struct DependencyData {
 
 class DefinitionsLookup: SyntaxVisitor {
     private var _isScanning: Bool = false
-    private var _isPublic: Bool = false
     private var _lastName: String?
     private(set) var data: DependencyData = .init()
 
@@ -100,8 +98,6 @@ class DefinitionsLookup: SyntaxVisitor {
         case .importKeyword:
             let identifiers = nextFullyQualifiedIdentifier(initialToken: token)
             data.imports.append(identifiers.joined(separator: "."))
-        case .publicKeyword:
-            _isPublic = true
         case let .identifier(value):
             guard _isScanning else {
                 break
@@ -117,14 +113,12 @@ class DefinitionsLookup: SyntaxVisitor {
                let lastName = _lastName, !data.definitions.map(\.name).contains(lastName)
             {
                 let definition = DependencyDefinition(name: lastName,
-                                                      identifier: dependencyIdentifier,
-                                                      isPublic: _isPublic)
+                                                      identifier: dependencyIdentifier)
                 data.definitions.append(definition)
             }
         case .leftBrace:
             _isScanning = false
             _lastName = nil
-            _isPublic = false
         default:
             break
         }
@@ -226,7 +220,7 @@ class ExtensionBuilder {
                 private struct \(def.name)\(def.identifier.rawValue)ProviderKey: DependencyKey {
                     static var defaultValue = _\(def.identifier.rawValue)Provider<\(def.name)>()
                 }
-                \(def.isPublic ? "public" : "") extension SharedContainer {
+                public extension SharedContainer {
                     var \(def.name.lowercasedFirstLetter()): () \(def.identifier.signature) -> \(def.name) {
                         get { { \(def.identifier.prefix) self[\(def.name)\(def.identifier.rawValue)ProviderKey.self].getValue(container: self) } }
                         set { self[\(def.name)\(def.identifier.rawValue)ProviderKey.self].replaceProvider(newValue) }

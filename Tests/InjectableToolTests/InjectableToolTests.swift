@@ -46,25 +46,25 @@ final class InjectableToolTests: XCTestCase {
         XCTAssertEqual(
             definitionsFinder.data.definitions,
             [
-                DependencyDefinition(name: "Struct0", identifier: .dependency, isPublic: false),
-                DependencyDefinition(name: "Struct1", identifier: .asyncFailableDependency, isPublic: false),
-                DependencyDefinition(name: "Struct2", identifier: .failableDependency, isPublic: false),
+                DependencyDefinition(name: "Struct0", identifier: .dependency),
+                DependencyDefinition(name: "Struct1", identifier: .asyncFailableDependency),
+                DependencyDefinition(name: "Struct2", identifier: .failableDependency),
 
-                DependencyDefinition(name: "Class0", identifier: .dependency, isPublic: false),
-                DependencyDefinition(name: "Class1", identifier: .asyncFailableDependency, isPublic: false),
-                DependencyDefinition(name: "Class2", identifier: .failableDependency, isPublic: false),
+                DependencyDefinition(name: "Class0", identifier: .dependency),
+                DependencyDefinition(name: "Class1", identifier: .asyncFailableDependency),
+                DependencyDefinition(name: "Class2", identifier: .failableDependency),
 
-                DependencyDefinition(name: "Enum0", identifier: .dependency, isPublic: false),
-                DependencyDefinition(name: "Enum1", identifier: .asyncFailableDependency, isPublic: false),
-                DependencyDefinition(name: "Enum2", identifier: .failableDependency, isPublic: false),
+                DependencyDefinition(name: "Enum0", identifier: .dependency),
+                DependencyDefinition(name: "Enum1", identifier: .asyncFailableDependency),
+                DependencyDefinition(name: "Enum2", identifier: .failableDependency),
 
-                DependencyDefinition(name: "Actor0", identifier: .dependency, isPublic: true),
-                DependencyDefinition(name: "Actor1", identifier: .asyncFailableDependency, isPublic: true),
-                DependencyDefinition(name: "Actor2", identifier: .failableDependency, isPublic: true),
+                DependencyDefinition(name: "Actor0", identifier: .dependency),
+                DependencyDefinition(name: "Actor1", identifier: .asyncFailableDependency),
+                DependencyDefinition(name: "Actor2", identifier: .failableDependency),
 
-                DependencyDefinition(name: "Extension0", identifier: .dependency, isPublic: false),
-                DependencyDefinition(name: "Extension1", identifier: .asyncFailableDependency, isPublic: false),
-                DependencyDefinition(name: "Extension2", identifier: .failableDependency, isPublic: false),
+                DependencyDefinition(name: "Extension0", identifier: .dependency),
+                DependencyDefinition(name: "Extension1", identifier: .asyncFailableDependency),
+                DependencyDefinition(name: "Extension2", identifier: .failableDependency),
             ]
         )
 
@@ -83,15 +83,15 @@ final class InjectableToolTests: XCTestCase {
         try definitionsFinder.parse(source: example)
 
         XCTAssertEqual(definitionsFinder.data.definitions,
-                       [DependencyDefinition(name: "NestedStruct", identifier: .dependency, isPublic: false)])
+                       [DependencyDefinition(name: "NestedStruct", identifier: .dependency)])
     }
 
     func testBasicExtensionBuilder() async throws {
         let builder = ExtensionBuilder(
             DependencyData(definitions: [
-                DependencyDefinition(name: "CustomStruct1", identifier: .dependency, isPublic: true),
-                DependencyDefinition(name: "CustomStruct2", identifier: .asyncFailableDependency, isPublic: true),
-                DependencyDefinition(name: "CustomStruct3", identifier: .failableDependency, isPublic: true),
+                DependencyDefinition(name: "CustomStruct1", identifier: .dependency),
+                DependencyDefinition(name: "CustomStruct2", identifier: .asyncFailableDependency),
+                DependencyDefinition(name: "CustomStruct3", identifier: .failableDependency),
             ],
             imports: ["Injectable", "AudioUnit"])
         )

@@ -1,3 +1,3 @@
-# InjectableTool
+# ToledoTool
 
-A description of this package.
+A small tool that generates dependencies from files. Used by Toledo's plugin.

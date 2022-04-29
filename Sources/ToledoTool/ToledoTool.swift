@@ -10,12 +10,12 @@ import SwiftSyntax
 import SwiftSyntaxBuilder
 import SwiftSyntaxParser
 
-enum InjectableToolError: Error {
+enum ToledoToolError: Error {
     case failedToReadInputFile
 }
 
 @main
-enum InjectableTool {
+enum ToledoTool {
     public static func main() throws {
         let path = String(CommandLine.arguments[1])
 
@@ -29,7 +29,7 @@ enum InjectableTool {
             .contents(atPath: path),
             let source = String(data: sourceData, encoding: .utf8)
         else {
-            throw InjectableToolError.failedToReadInputFile
+            throw ToledoToolError.failedToReadInputFile
         }
 
         let definitionsFinder = DefinitionsLookup()
@@ -47,15 +47,15 @@ enum InjectableTool {
 }
 
 enum DependencyIdentifier: String {
-    case asyncFailableDependency = "AsyncFailableDependency"
-    case failableDependency = "FailableDependency"
+    case asyncThrowingDependency = "AsyncThrowingDependency"
+    case throwingDependency = "ThrowingDependency"
     case dependency = "Dependency"
 
     var signature: String {
         switch self {
-        case .asyncFailableDependency:
+        case .asyncThrowingDependency:
             return "async throws"
-        case .failableDependency:
+        case .throwingDependency:
             return "throws"
         case .dependency:
             return ""
@@ -64,9 +64,9 @@ enum DependencyIdentifier: String {
 
     var prefix: String {
         switch self {
-        case .asyncFailableDependency:
+        case .asyncThrowingDependency:
             return "try await"
-        case .failableDependency:
+        case .throwingDependency:
             return "try"
         case .dependency:
             return ""
@@ -222,8 +222,7 @@ class ExtensionBuilder {
                 }
                 public extension SharedContainer {
                     var \(def.name.lowercasedFirstLetter()): () \(def.identifier.signature) -> \(def.name) {
-                        get { { \(def.identifier.prefix) self[\(def.name)\(def.identifier.rawValue)ProviderKey.self].getValue(container: self) } }
-                        set { self[\(def.name)\(def.identifier.rawValue)ProviderKey.self].replaceProvider(newValue) }
+                        { \(def.identifier.prefix) self[\(def.name)\(def.identifier.rawValue)ProviderKey.self].getValue(container: self) }
                     }
                 }
                 """)

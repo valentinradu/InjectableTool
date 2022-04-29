@@ -14,7 +14,7 @@ let package = Package(
         .package(
             url: "https://github.com/apple/swift-syntax.git",
             .upToNextMajor(from: "0.50600.1")
-        )
+        ),
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.

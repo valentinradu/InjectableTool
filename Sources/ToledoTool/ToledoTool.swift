@@ -222,7 +222,8 @@ class ExtensionBuilder {
                 }
                 public extension SharedContainer {
                     var \(def.name.lowercasedFirstLetter()): () \(def.identifier.signature) -> \(def.name) {
-                        { \(def.identifier.prefix) self[\(def.name)\(def.identifier.rawValue)ProviderKey.self].getValue(container: self) }
+                        get { { \(def.identifier.prefix) self[\(def.name)\(def.identifier.rawValue)ProviderKey.self].getValue(container: self) } }
+                        set { self[\(def.name)\(def.identifier.rawValue)ProviderKey.self].replaceProvider(newValue) }
                     }
                 }
                 """)

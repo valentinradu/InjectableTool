@@ -107,7 +107,8 @@ final class ToledoToolTests: XCTestCase {
         }
         public extension SharedContainer {
             var customStruct1: ()  -> CustomStruct1 {
-                {  self[CustomStruct1DependencyProviderKey.self].getValue(container: self) }
+                get { {  self[CustomStruct1DependencyProviderKey.self].getValue(container: self) } }
+                set { self[CustomStruct1DependencyProviderKey.self].replaceProvider(newValue) }
             }
         }
         private struct CustomStruct2AsyncThrowingDependencyProviderKey: DependencyKey {
@@ -115,7 +116,8 @@ final class ToledoToolTests: XCTestCase {
         }
         public extension SharedContainer {
             var customStruct2: () async throws -> CustomStruct2 {
-                { try await self[CustomStruct2AsyncThrowingDependencyProviderKey.self].getValue(container: self) }
+                get { { try await self[CustomStruct2AsyncThrowingDependencyProviderKey.self].getValue(container: self) } }
+                set { self[CustomStruct2AsyncThrowingDependencyProviderKey.self].replaceProvider(newValue) }
             }
         }
         private struct CustomStruct3ThrowingDependencyProviderKey: DependencyKey {
@@ -123,7 +125,8 @@ final class ToledoToolTests: XCTestCase {
         }
         public extension SharedContainer {
             var customStruct3: () throws -> CustomStruct3 {
-                { try self[CustomStruct3ThrowingDependencyProviderKey.self].getValue(container: self) }
+                get { { try self[CustomStruct3ThrowingDependencyProviderKey.self].getValue(container: self) } }
+                set { self[CustomStruct3ThrowingDependencyProviderKey.self].replaceProvider(newValue) }
             }
         }
         """

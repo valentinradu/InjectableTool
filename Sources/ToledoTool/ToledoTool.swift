@@ -217,7 +217,7 @@ class ExtensionBuilder {
             }
             for def in _data.definitions {
                 RawSyntax(source: """
-                private struct \(def.name)\(def.identifier.rawValue)ProviderKey: DependencyKey {
+                public struct \(def.name)\(def.identifier.rawValue)ProviderKey: DependencyKey {
                     static let defaultValue = _\(def.identifier.rawValue)Provider<\(def.name)>()
                 }
                 public extension SharedContainer {

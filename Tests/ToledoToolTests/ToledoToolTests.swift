@@ -90,8 +90,8 @@ final class ToledoToolTests: XCTestCase {
         let builder = ExtensionBuilder(
             DependencyData(definitions: [
                 DependencyDefinition(name: "CustomStruct1", identifier: .dependency),
-                DependencyDefinition(name: "CustomStruct2", identifier: .asyncThrowingDependency),
-                DependencyDefinition(name: "CustomStruct3", identifier: .throwingDependency),
+                DependencyDefinition(name: "CustomStruct2", identifier: .throwingDependency),
+                DependencyDefinition(name: "CustomStruct3", identifier: .asyncThrowingDependency),
             ],
             imports: ["Toledo", "AudioUnit"])
         )
@@ -103,30 +103,27 @@ final class ToledoToolTests: XCTestCase {
         import Toledo
         import AudioUnit
         private struct CustomStruct1DependencyProviderKey: DependencyKey {
-            static var defaultValue = _DependencyProvider<CustomStruct1>()
+            static let defaultValue = _DependencyProvider<CustomStruct1>()
         }
         public extension SharedContainer {
-            var customStruct1: ()  -> CustomStruct1 {
-                get { {  self[CustomStruct1DependencyProviderKey.self].getValue(container: self) } }
-                set { self[CustomStruct1DependencyProviderKey.self].replaceProvider(newValue) }
+            func customStruct1()  -> CustomStruct1 {
+                 self[CustomStruct1DependencyProviderKey.self].getValue(container: self)
             }
         }
-        private struct CustomStruct2AsyncThrowingDependencyProviderKey: DependencyKey {
-            static var defaultValue = _AsyncThrowingDependencyProvider<CustomStruct2>()
+        private struct CustomStruct2ThrowingDependencyProviderKey: DependencyKey {
+            static let defaultValue = _ThrowingDependencyProvider<CustomStruct2>()
         }
         public extension SharedContainer {
-            var customStruct2: () async throws -> CustomStruct2 {
-                get { { try await self[CustomStruct2AsyncThrowingDependencyProviderKey.self].getValue(container: self) } }
-                set { self[CustomStruct2AsyncThrowingDependencyProviderKey.self].replaceProvider(newValue) }
+            func customStruct2() throws -> CustomStruct2 {
+                try self[CustomStruct2ThrowingDependencyProviderKey.self].getValue(container: self)
             }
         }
-        private struct CustomStruct3ThrowingDependencyProviderKey: DependencyKey {
-            static var defaultValue = _ThrowingDependencyProvider<CustomStruct3>()
+        private struct CustomStruct3AsyncThrowingDependencyProviderKey: DependencyKey {
+            static let defaultValue = _AsyncThrowingDependencyProvider<CustomStruct3>()
         }
         public extension SharedContainer {
-            var customStruct3: () throws -> CustomStruct3 {
-                get { { try self[CustomStruct3ThrowingDependencyProviderKey.self].getValue(container: self) } }
-                set { self[CustomStruct3ThrowingDependencyProviderKey.self].replaceProvider(newValue) }
+            func customStruct3() async throws -> CustomStruct3 {
+                try await self[CustomStruct3AsyncThrowingDependencyProviderKey.self].getValue(container: self)
             }
         }
         """

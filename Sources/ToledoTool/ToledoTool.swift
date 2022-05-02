@@ -218,12 +218,11 @@ class ExtensionBuilder {
             for def in _data.definitions {
                 RawSyntax(source: """
                 private struct \(def.name)\(def.identifier.rawValue)ProviderKey: DependencyKey {
-                    static var defaultValue = _\(def.identifier.rawValue)Provider<\(def.name)>()
+                    static let defaultValue = _\(def.identifier.rawValue)Provider<\(def.name)>()
                 }
                 public extension SharedContainer {
-                    var \(def.name.lowercasedFirstLetter()): () \(def.identifier.signature) -> \(def.name) {
-                        get { { \(def.identifier.prefix) self[\(def.name)\(def.identifier.rawValue)ProviderKey.self].getValue(container: self) } }
-                        set { self[\(def.name)\(def.identifier.rawValue)ProviderKey.self].replaceProvider(newValue) }
+                    func \(def.name.lowercasedFirstLetter())() \(def.identifier.signature) -> \(def.name) {
+                        \(def.identifier.prefix) self[\(def.name)\(def.identifier.rawValue)ProviderKey.self].getValue(container: self)
                     }
                 }
                 """)

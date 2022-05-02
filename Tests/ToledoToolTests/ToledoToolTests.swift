@@ -103,7 +103,7 @@ final class ToledoToolTests: XCTestCase {
         import Toledo
         import AudioUnit
         public struct CustomStruct1DependencyProviderKey: DependencyKey {
-            static let defaultValue = _DependencyProvider<CustomStruct1>()
+            public static let defaultValue = _DependencyProvider<CustomStruct1>()
         }
         public extension SharedContainer {
             func customStruct1()  -> CustomStruct1 {
@@ -111,7 +111,7 @@ final class ToledoToolTests: XCTestCase {
             }
         }
         public struct CustomStruct2ThrowingDependencyProviderKey: DependencyKey {
-            static let defaultValue = _ThrowingDependencyProvider<CustomStruct2>()
+            public static let defaultValue = _ThrowingDependencyProvider<CustomStruct2>()
         }
         public extension SharedContainer {
             func customStruct2() throws -> CustomStruct2 {
@@ -119,7 +119,7 @@ final class ToledoToolTests: XCTestCase {
             }
         }
         public struct CustomStruct3AsyncThrowingDependencyProviderKey: DependencyKey {
-            static let defaultValue = _AsyncThrowingDependencyProvider<CustomStruct3>()
+            public static let defaultValue = _AsyncThrowingDependencyProvider<CustomStruct3>()
         }
         public extension SharedContainer {
             func customStruct3() async throws -> CustomStruct3 {

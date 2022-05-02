@@ -218,7 +218,7 @@ class ExtensionBuilder {
             for def in _data.definitions {
                 RawSyntax(source: """
                 public struct \(def.name)\(def.identifier.rawValue)ProviderKey: DependencyKey {
-                    static let defaultValue = _\(def.identifier.rawValue)Provider<\(def.name)>()
+                    public static let defaultValue = _\(def.identifier.rawValue)Provider<\(def.name)>()
                 }
                 public extension SharedContainer {
                     func \(def.name.lowercasedFirstLetter())() \(def.identifier.signature) -> \(def.name) {

@@ -221,7 +221,7 @@ class ExtensionBuilder {
                     public static let defaultValue = _\(def.identifier.rawValue)Provider<\(def.name)>()
                 }
                 public extension SharedContainer {
-                    func \(def.name.lowercasedFirstLetter())() \(def.identifier.signature) -> \(def.name).ResolvedType {
+                    func \(def.name.lowercasedFirstLetter())() \(def.identifier.signature) -> \(def.name).ResolvedTo {
                         \(def.identifier.prefix) self[\(def.name)\(def.identifier.rawValue)ProviderKey.self].getValue(container: self)
                     }
                 }

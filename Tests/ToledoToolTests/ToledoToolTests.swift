@@ -106,7 +106,7 @@ final class ToledoToolTests: XCTestCase {
             public static let defaultValue = _DependencyProvider<CustomStruct1>()
         }
         public extension SharedContainer {
-            func customStruct1()  -> CustomStruct1.ResolvedType {
+            func customStruct1()  -> CustomStruct1.ResolvedTo {
                  self[CustomStruct1DependencyProviderKey.self].getValue(container: self)
             }
         }
@@ -114,7 +114,7 @@ final class ToledoToolTests: XCTestCase {
             public static let defaultValue = _ThrowingDependencyProvider<CustomStruct2>()
         }
         public extension SharedContainer {
-            func customStruct2() throws -> CustomStruct2.ResolvedType {
+            func customStruct2() throws -> CustomStruct2.ResolvedTo {
                 try self[CustomStruct2ThrowingDependencyProviderKey.self].getValue(container: self)
             }
         }
@@ -122,7 +122,7 @@ final class ToledoToolTests: XCTestCase {
             public static let defaultValue = _AsyncThrowingDependencyProvider<CustomStruct3>()
         }
         public extension SharedContainer {
-            func customStruct3() async throws -> CustomStruct3.ResolvedType {
+            func customStruct3() async throws -> CustomStruct3.ResolvedTo {
                 try await self[CustomStruct3AsyncThrowingDependencyProviderKey.self].getValue(container: self)
             }
         }
